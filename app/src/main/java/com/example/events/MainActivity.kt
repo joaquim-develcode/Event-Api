@@ -21,15 +21,14 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var loginViewModel: LoginViewModel
     private lateinit var binding: ActivityMainBinding
-    private lateinit var eventsAdapter: EventsAdapter
     private lateinit var listEvents: List<Event>
+    private var recyclerView: RecyclerView? = null
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(R.layout.activity_main)
-
-        initRecyclerView()
 
         loginViewModel = ViewModelProvider(this, LoginViewModelFactory())
             .get(LoginViewModel::class.java)
@@ -43,22 +42,24 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    private fun initRecyclerView() {
-        binding.mainRecycler.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            eventsAdapter = EventsAdapter()
-            adapter = adapter
-        }
-    }
-
     @SuppressLint("NotifyDataSetChanged")
     private fun getEvents() {
         loginViewModel.events()
         loginViewModel.eventResult.observe(this@MainActivity, Observer {
             val eventResult = it ?: return@Observer
             listEvents = eventResult
-            eventsAdapter.submitList(listEvents)
+            setDataToAdapter()
         })
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    private fun setDataToAdapter() {
+        val linearLayoutManager = LinearLayoutManager(this)
+        val adapter = EventsAdapter(listEvents)
+        recyclerView = binding.mainRecyclerView
+        recyclerView?.layoutManager = linearLayoutManager
+        recyclerView?.adapter = adapter
+        adapter.notifyDataSetChanged()
     }
 
 }

@@ -1,6 +1,5 @@
 package com.example.events.ui.events
 
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,50 +9,50 @@ import com.example.events.R
 import com.example.events.model.Event
 import com.squareup.picasso.Picasso
 import de.hdodenhof.circleimageview.CircleImageView
-import java.text.SimpleDateFormat
 
-class EventsAdapter : RecyclerView.Adapter<EventsAdapter.ViewHolder>() {
-
-    private var events: List<Event> = ArrayList()
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_event, parent, false)
-        )
+class EventsAdapter(private var items: List<Event>) :
+    RecyclerView.Adapter<EventsAdapter.EventViewHolder>() {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EventViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return EventViewHolder(inflater, parent)
     }
 
-    @SuppressLint("SimpleDateFormat")
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val event = events[position]
-        val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy")
-        val dateString = simpleDateFormat.format(event.date)
-        holder.date.text = String.format("Date: %s", dateString)
-        holder.title.text = event.title
-        holder.description.text = event.description
-        holder.price.text = event.price.toString()
-        holder.latitude.text = event.latitude.toString()
-        holder.longitude.text = event.longitude.toString()
-        Picasso.get().load(event.image).into(holder.image)
-
+    override fun onBindViewHolder(holder: EventViewHolder, position: Int) {
+        val event: Event = items[position]
+        holder.bind(event)
     }
 
-    fun submitList(setList: List<Event>) {
-        events = setList
+    override fun getItemCount(): Int = items.size
+
+    class EventViewHolder(inflater: LayoutInflater, parent: ViewGroup) :
+        RecyclerView.ViewHolder(inflater.inflate(R.layout.item_event, parent, false)) {
+        private var image: CircleImageView? = null
+        var title: TextView? = null
+        var description: TextView? = null
+        var longitude: TextView? = null
+        var latitude: TextView? = null
+        var price: TextView? = null
+        var date: TextView? = null
+
+        init {
+            image = itemView.findViewById<View>(R.id.picture) as CircleImageView
+            title = itemView.findViewById<View>(R.id.title_item) as TextView
+            description = itemView.findViewById<View>(R.id.description_item) as TextView
+            longitude = itemView.findViewById<View>(R.id.longitude) as TextView
+            latitude = itemView.findViewById<View>(R.id.latitude) as TextView
+            price = itemView.findViewById<View>(R.id.price_item) as TextView
+            date = itemView.findViewById<View>(R.id.date_item) as TextView
+        }
+
+        fun bind(event: Event) {
+            title?.text = event.title
+            description?.text = event.description
+            longitude?.text = event.longitude.toString()
+            latitude?.text = event.latitude.toString()
+            price?.text = event.price.toString()
+            date?.text = event.date.toString()
+            Picasso.get().load(event.image).into(image)
+        }
     }
 
-    override fun getItemCount(): Int {
-        return events.size
-    }
-
-    class ViewHolder constructor(
-        itemView: View
-    ) : RecyclerView.ViewHolder(itemView) {
-        var image = itemView.findViewById<View>(R.id.picture) as CircleImageView
-        var title = itemView.findViewById<View>(R.id.title_item) as TextView
-        var description = itemView.findViewById<View>(R.id.description_item) as TextView
-        var longitude = itemView.findViewById<View>(R.id.longitude) as TextView
-        var latitude = itemView.findViewById<View>(R.id.latitude) as TextView
-        var price = itemView.findViewById<View>(R.id.price_item) as TextView
-        var date = itemView.findViewById<View>(R.id.date_item) as TextView
-    }
 }
